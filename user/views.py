@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 from .models import UserModel
-
+from django.contrib import auth
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 
 def main(request):
     return render(request, 'user/signin.html/') # 로그인
@@ -15,47 +17,53 @@ def signup(request):
         print("signup post method")
         username = request.POST.get('username', None)
         email = request.POST.get('email', None)
-        nickname = request.POST.get('nickname', None)
+        firstname = request.POST.get('firstname', None)
         password = request.POST.get('password', None)
         password2 = request.POST.get('password2', None)
         if password != password2:
             # 패스워드 다릅니다 출력 messages 프레임워크 후에 작업 예정
             # 패스워드만 비우기 기능
-            return redirect('/signup/')
+            print("패스워드 다름")
+            return redirect('/user/signup/')
         else:
-            exist_user = UserModel.objects.filter(email=email)
+            exist_user = UserModel.objects.filter(username=username)
             
             if exist_user:
                 # print("아이디가 이미 존재합니다!!!!!!!!!!!!!!!!!")
-                messages = {'message' : "아이디 다시 쓰지마라...."}
+                messages = {'message' : "아이디를 다시 입력해주세요."}
                 return render(request, 'user/signup.html',messages)
             else:
-                new_user = UserModel()
-                new_user.email = email
-                new_user.username = username
-                new_user.nickname = nickname
-                new_user.password = password
-                new_user.save()
+                print(firstname)
+                UserModel.objects.create_user(username=username,password=password,email = email,first_name = firstname)
+
                 return redirect('/')  # 여기서 로그인페이지로 넘어감! 조심조심!! 주소를 써야하는데 singup으로 되어있
-                # singin page로 넘어가면서 가입이 완료됐습니다. 이메일은 :~~@~~~.~~~ 입니다 메시지 출력
+                # * singin page로 넘어가면서 가입이 완료됐습니다. 이메일은 :~~@~~~.~~~ 입니다 메시지 출력
       
                 
 def signin(request):
     if request.method == 'POST':
         print("signin method post")
-        email = request.POST.get('email', None)
+        username = request.POST.get('username', None)
         password = request.POST.get('password', None)
-        print(email,password)
+        print(username,password)
         
-        me = UserModel.objects.get(email=email) # 사용자 불러오기
-        if me.password == password: # 저장된 사용자의 패스워드와 입력받은 패스워드 비교
-            request.session['user'] = me.email # 세션에 사용자 이름 저장#
-            return render(request,'index.html/')
+        # 로그인 인증
+        me = auth.authenticate(request, username=username, password=password) #* db에 username, password 있느냐?
+        print(type(me))
+        # me = UserModel.objects.get(username=username) # 사용자 불러오기
+        if me is not None: # *저장된 사용자의 패스워드와 입력받은 패스워드 비교
+            print("로그인 성공!!")
+            auth.login(request,me) # session
+            return redirect('/') # index.html로 들어갑니다.
         else:
-            return redirect('/signin')
+            print("로그인 실패!")
+            return redirect('/user/signin')
     elif request.method == 'GET':
         return render(request, 'user/signin.html')
-
+@login_required
+def signout(request):
+    auth.logout(request) # 로그아웃 session 종료
+    return redirect('/') # logout 버튼을 누르면 index.html로 이동한다.
         
         
 def index(request):

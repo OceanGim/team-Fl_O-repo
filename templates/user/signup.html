@@ -45,24 +45,23 @@
             <div style="font-size:17px; font-weight:600; line-height: 20px; text-align: center; color: rgba(142,142,142,1); margin: 0 40px 20px">
                 친구들의 사진과 동영상을 보려면 가입하세요.
             </div>
-            <form action="/signup/" method="post">
+            <form action="/user/signup/" method="post">
             {% csrf_token %}
             {% if message %}
             <p style="color:red">{{ message }}</p>
             {% endif %}
             <div class="form-floating mb-2 floating_form">
+                <input type="text" class="floating_input form-control" id="username" name="username" placeholder="홍길동">
+                <label for="username" class="floating_label">ID</label>
+            </div>
+            <div class="form-floating mb-2 floating_form">
                 <input type="email" class="floating_input form-control" id="email" name="email"
                        placeholder="name@example.com">
                 <label for="email" class="floating_label">이메일 주소</label>
             </div>
-            
             <div class="form-floating mb-2 floating_form">
-                <input type="text" class="floating_input form-control" id="username" name="username" placeholder="홍길동">
-                <label for="username" class="floating_label">성명</label>
-            </div>
-            <div class="form-floating mb-2 floating_form">
-                <input type="text" class="floating_input form-control" id="nickname" name="nickname" placeholder="hong">
-                <label for="nickname" class="floating_label">별명</label>
+                <input type="text" class="floating_input form-control" id="firstname" name="firstname" placeholder="hong">
+                <label for="firstname" class="floating_label">이름</label>
             </div>
             <div class="form-floating mb-2 floating_form">
                 <input type="password" class="floating_input form-control" id="password" name="password" placeholder="Password">
