@@ -8,3 +8,6 @@ class UserModel(AbstractUser):
 
     updated_at = models.DateTimeField(auto_now=True) # 변경 시간
     bio = models.TextField(max_length=500, blank=True) # * status message
+    image = models.TextField(max_length=500, blank=True) # * profile image
+    
+    

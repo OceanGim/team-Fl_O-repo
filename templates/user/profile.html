@@ -71,12 +71,12 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: fixed;width: 100%">
     <div class="container-fluid" style="justify-content: space-between;flex-wrap: nowrap; min-width: 1000px">
-        <a class="navbar-brand" href="main"><img style="width: 100px"
+        <a class="navbar-brand" href="main.html"><img style="width: 100px"
                                               src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png">
         </a>
         <input class="form-control me-2" style="width: 400px" type="search" placeholder="Search" aria-label="Search">
         <div style="display: flex">
-            <a href="main" style="color: black"><span class="material-icons" style="padding-right: 10px">home</span></a>
+            <a href="main" style="color: black"><span class="material-icons" href="../main.html" style="padding-right: 10px">home</span></a>
             <span id="nav_bar_add_box" class="material-icons-outlined" style="padding-right: 10px">add_box</span>
 
             <div class="dropdown">
@@ -84,14 +84,12 @@
                    data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="box" style="width: 25px; height: 25px">
 
-                        <img class="profile"
-                             src="{% get_media_prefix %}{{ user.profile_image }}">
-
+                        <img class="profile" {% get_media_prefix %}{{ profile.image }}">
                     </div>
                 </a>
 
                 <ul class="dropdown-menu" style="left:-158px" aria-labelledby="dropdownMenuLink">
-                    <li><a class="dropdown-item" href="#">프로필</a></li>
+                    <li><a class="dropdown-item" href="/user/profile">프로필</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="/user/logout">로그아웃</a></li>
                 </ul>
@@ -106,29 +104,26 @@
         <div class="box" style="width: 175px; height: 175px;">
 
             <img class="profile"
-                 src="{% get_media_prefix %}{{ user.profile_image }}">
-
+                 src="/media/profile.png">
         </div>
     </div>
     <div style="text-align: left">
         <div style="display: flex; flex-direction: row; margin: 20px 0">
             <div style="font-size: 26px; margin-right: 40px">
-                {{ user.nickname }}
+                {{ user.username }}
             </div>
             <button id="button_profile_upload" style="margin-right: 40px"> 프로필 사진 편집</button>
             <input type="file" id="input_fileupload" onchange="profile_upload();" style="display: none" />
             <span class="material-icons-outlined" style="margin-right: 40px">settings</span>
         </div>
-
         <div style="margin-bottom: 20px">
-            게시물 내 게시물건수  팔로워 111 팔로잉 111
+            게시물 {% for postprofile in postprofiles %}{{ postprofile.user.id }}{% endfor %}  팔로워 3,126 팔로잉 3
         </div>
         <div>
-            <b>{{ user.name }}</b>
+            <b>{{user.first_name}}</b>
         </div>
     </div>
 </div>
-
 <div style="border-top: solid 2px rgba(50,50,50,0.1); width: 100%">
 
     <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; margin: 20px">
@@ -138,27 +133,26 @@
     </div>
 
 </div>
-
+<table border = 0>
+<tr>
+{% for postprofile in postprofiles %}
 <div id="feed_list" style="width: 100%; min-width: 1000px; display: flex; align-items: center;justify-content: center">
     <div style="display: flex; flex-direction: row; flex-wrap: wrap; width: 1000px; justify-content: center">
-        {% for feed in feed_list %}
             <div style="width: 300px;height: 300px; margin: 10px 5px 0px 5px;">
-
                 <div><img style="width: 300px;height: 300px; object-fit: cover"
-                          src="{% get_media_prefix %}{{ feed.image }}">
+                          src="{% get_media_prefix %}{{ postprofile.image }}">
                 </div>
             </div>
-        {% endfor %}
     </div>
 </div>
-
+{% endfor %}
 <div id="like_feed_list" style="width: 100%; min-width: 1000px; display: none; align-items: center;justify-content: center">
     <div style="display: flex; flex-direction: row; flex-wrap: wrap; width: 1000px; justify-content: center">
         {% for feed in like_feed_list %}
             <div style="width: 300px;height: 300px; margin: 10px 5px 0px 5px;">
 
                 <div><img style="width: 300px;height: 300px; object-fit: cover"
-                          src="{% get_media_prefix %}{{ feed.image }}">
+                          src="{% get_media_prefix %}{{ postprofile.image }}">
                 </div>
             </div>
         {% endfor %}
@@ -390,7 +384,7 @@
     function profile_upload(){
         let file = $('#input_fileupload')[0].files[0];
 
-        let email = "{{ user.email }}";
+        let email = "{{ profile.user.email }}";
 
         let fd = new FormData();
 
@@ -398,7 +392,7 @@
         fd.append('email', email);
 
         $.ajax({
-            url: "/user/profile/upload",
+            url: "/user/profile",
             data: fd,
             method: "POST",
             processData: false,
@@ -411,7 +405,7 @@
             },
             complete: function () {
                 console.log("완료");
-                location.replace("/content/profile");
+                location.replace("/user/profile");
             }
         });
 

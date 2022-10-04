@@ -16,11 +16,30 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include("user.urls")),
     path('', views.main),
-    path('newsfeed/', views.newsfeed),
+    path('newsfeed/', views.newsfeed), # 127.0.0.1:8000/newsfeed
     path('post/', include("post.urls")),
+
+
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# post/urls.py
+# urlpatterns = [
+#     path('posting/', views.posting),
+# ] 
+
+# user/urls.py
+# urlpatterns =[
+#      path('', views.index),
+#      path('signup/', views.signup),
+#      path('profile/', views.profile),
+#      path('signin/', views.signin),
+#      path('signout/',views.signout),    
+# ]

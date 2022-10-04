@@ -1,5 +1,6 @@
 from django.db import models
 from user.models import UserModel
+from django.conf import settings
 
 class PostModel(models.Model):
     class Meta:
@@ -9,8 +10,16 @@ class PostModel(models.Model):
     content = models.TextField(max_length=500, blank=True) # * status message
     like_count = models.IntegerField(default=0)
     create_at = models.DateTimeField(auto_now_add=True)
+    image = models.TextField(max_length=500, blank=True)
+    like = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = 'like')
+
+# class Like(models.Model):
+#     user = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = 'like')
+#     post = models.ForeignKey(PostModel, on_delete=models.CASCADE)
 
 
+# 이미지 파일 >>>>> 이미지파일을 media에 저장 저장시 이름을 uuid.hex << 이름을 바꿔줌 저장 >> db 이름저장 
+# 불러올때, uuidname 오겠죠? 이이름으로 media에서 찾는거에요 
 
 
 

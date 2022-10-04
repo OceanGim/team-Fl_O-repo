@@ -18,7 +18,9 @@
     <!-- jquery 사용하기 위해 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-    <title>여기에 진스타그램 만들꺼임 </title>
+
+    <title>FLORAL</title>
+
 </head>
 
 <style>
@@ -31,16 +33,16 @@
     }
 
     .left_body {
-        background-color: skyblue;
+        background-color: black;
         margin-right: 100px;
         width: 600px;
-        height: 2000px;
+        height: 3000px;
         display: flex;
         flex-direction: column;
     }
 
     .right_body {
-        background-color: yellow;
+        background-color: none;
         padding-top: 20px;
         width: 300px;
         height: 1000px;
@@ -49,7 +51,7 @@
     }
 
     .feed_box {
-        background-color: white;
+        background-color: #ff80ab;
         width: 580px;
         margin: 10px;
         min-height: auto;
@@ -300,17 +302,17 @@
                 <div class="dropdown" style="position: relative; z-index: 9999">
                     <div class="navi_profile_box" id="dropdownMenuButton1"
                          data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="profile_img"
-                             src="{% get_media_prefix %}{{ user.thumbnail }}">
+
+                        <img class="profile_img"src="/media/profile.jpg"> 
                     </div>
 
                     <ul class="dropdown-menu" style="left: -130px" aria-labelledby="dropdownMenuButton1">
-                        <li><a class="dropdown-item" href="#">프로필</a></li>
+                        <li><a class="dropdown-item" href="/user/profile">프로필</a></li>
                         <li><a class="dropdown-item" href="#">저장됨</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">로그아웃</a></li>
+                        <li><a class="dropdown-item" href="/user/signout">로그아웃</a></li>
                     </ul>
                 </div>
             </div>
@@ -320,62 +322,63 @@
     <!-- 바디 영역 -->
     <div class="main_body">
         <div class="left_body">
-            {% for feed in feed_list %}
-                <div class="border feed_box">
-                    <div class="feed_name">
-                        <div class="profile_box">
-                            <img class="profile_img" src="{% get_media_prefix %}{{ feed.profile_image }}">
-                        </div>
-                        <span class="feed_name_txt"> {{ feed.user_id }}</span>
+            {% for newsfeed in newsfeeds %}
+            <div class="border feed_box">
+                <div class="feed_name">
+                    <div class="profile_box">
+                        <img class="profile_img" src="#">
                     </div>
-                    <img class="feed_img" src="{% get_media_prefix %}{{ feed.image }}">
-                    <div class="feed_icon">
-                        <div>
-                            <span class="favorite_icon material-icons-outlined icons" feed_id="{{ feed.id }}" style="color: red">
-                                {% if feed.is_like %}
-                                    favorite
-                                {% else %}
-                                    favorite_border
-                                {% endif %}
-                            </span>
-                            <span class="material-icons-outlined">
-                                mode_comment
-                            </span>
-                        </div>
-                        <div>
-                            <span class="bookmark_icon material-icons-outlined" feed_id="{{ feed.id }}">
-                                {% if feed.is_bookmarked %}
-                                    turned_in
-                                {% else %}
-                                    turned_in_not
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="feed_like">
-                        <p class="feed_txt"><b>좋아요 <span>{{ feed.like_count }}</span>개</b></p>
-                    </div>
-                    <div class="feed_content">
-                        <p class="feed_txt"><b> {{ feed.user_id }} </b> {{ feed.content }}</p>
-                    </div>
-                    <div class="feed_reply">
-                        {% for reply in feed.reply_list %}
-                            <span class="feed_txt"> <b> {{ reply.user_id }} </b> {{ reply.content }} </span>
-                        {% endfor %}
-                    </div>
-                    <div class="feed_reply_write">
-                        <input type="text" class="write_reply_input floating_input form-control" style="border: none;" id="floatingName" placeholder="댓글 달기...">
-                        <span class="write_reply" feed_id="{{ feed.id }}" style="width: 60px; font-size: 16px; color: deepskyblue;font-weight: bold"> 게시 </span>
+                    <span class="feed_name_txt">{{newsfeed.user.username}}</span>
+                    <div style="text-align: right">
+                        <a href="/post/delete/{{ newsfeed.id }}">
+                            <span class="badge rounded-pill bg-danger">삭제</span>
+                        </a>
                     </div>
                 </div>
-            {% endfor %}
+                <img class="feed_img" src="{% get_media_prefix %}{{ newsfeed.image }}">
+                <div class="feed_icon">
+                    <div>
+                        <span class="favorite_icon material-icons-outlined icons" feed_id="newsfeed.id" style="color:red">
+                        <a href="/post/like/{{ newsfeed.id }}" class="card-link">favorite</a>
+
+                        </span>
+
+                        <span class="material-icons-outlined">
+                            mode_comment
+                        </span>
+                    </div>
+                    <div>
+                        <span class="bookmark_icon material-icons-outlined" feed_id="wefew">
+                                turned_in
+                        </span>
+                    </div>
+                </div>
+                <div class="feed_like">
+                    <p class="feed_txt"><b>좋아요 <span>{{post.like.like_count}}</span>개</b></p>
+                </div>
+                <div class="feed_content">
+                    <p class="feed_txt"><b>{{newsfeed.user.username}}</b>&nbsp {{newsfeed.content}}</p>
+                </div>
+                {% for reply in feed.reply_list %}
+                <div class="feed_reply">
+                        <span class="feed_txt"> <b> 댓글작성자 </b> 여기는 댓글입니다 </span>
+                </div>
+                {% endfor %}
+                <div class="feed_reply_write">
+                    <input type="text" class="write_reply_input floating_input form-control" style="border: none;" id="floatingName" placeholder="댓글 달기...">
+                    <span class="write_reply" feed_id="{{ feed.id }}" style="width: 60px; font-size: 16px; color: deepskyblue;font-weight: bold"> 게시 </span>
+                </div>
+            </div>
+        {% endfor %} 
         </div>
+     
+
         <div class="right_body">
             <div class="feed_name" style="justify-content: space-between">
                 <div style="display: flex; align-items: center; ">
                     <div class="big_profile_box">
                         <img class="profile_img"
-                             src="{% get_media_prefix %}{{ user.thumbnail }}">
+                             src="/media/profile.jpg">
                     </div>
                     <div class="name_content">
                         <span class="feed_name_txt"> {{ user.user_id }} </span>
@@ -507,7 +510,7 @@
                 <div class="feed_name">
                     <div class="profile_box">
                         <img id="input_profile_image" class="profile_img"
-                             src="{% get_media_prefix %}{{ user.thumbnail }}">
+                             src="/media/55dab6ac6a5f4d349dff934ed142ecb4">
                     </div>
                     <span id="input_user_id" class="feed_name_txt"> {{ user.user_id }} </span>
                     <span id="input_email" style="display: none"> {{ user.email }} </span>
@@ -746,9 +749,8 @@
         const file = files[0];
 
         let fd = new FormData();
-
-        // fd.append('file', file);
-        // fd.append('image', image);
+        fd.append('file', file);
+        fd.append('image', image);
         fd.append('content', content);
         // fd.append('profile_image', profile_image);
         // fd.append('username', user_id);

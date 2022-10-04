@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns =[
      path('', views.index),
@@ -9,6 +11,7 @@ urlpatterns =[
      path('signout/',views.signout),
      
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 # 맨처음 할거

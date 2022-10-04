@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 from .models import UserModel
+from post.models import PostModel
 from django.contrib import auth
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from FLO_pro.settings import MEDIA_ROOT
+from django.conf import settings
+
 
 def main(request):
     return render(request, 'user/signin.html/') # 로그인
@@ -69,5 +73,19 @@ def signout(request):
 def index(request):
     return render(request, 'index.html/') # 메인페이지
 
+# def profile(request):
+#     print("함수열려라 참꺠!")   
+#     return render(request, 'user/profile.html')
+
 def profile(request):
-    return render(request, 'content/profile.html/') # 프로필
+
+    if request.method == 'GET': # GET 메서드로 요청이 들어올 경우        
+        print("profile get mehtod")
+        user = request.user.is_authenticated
+        my_user = request.user
+        if user:  # 로그인 한 사용자라면
+            user_profile = UserModel.objects.get(username=my_user.username)
+            post_profile = PostModel.objects.filter(user_id=user_profile).order_by('-create_at')
+            return render(request, 'user/profile.html/', {'profiles': user_profile, 'postprofiles':post_profile}) # list
+        else:  # 로그인이 되어 있지 않다면
+            return redirect('/user/profile/')
