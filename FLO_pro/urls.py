@@ -25,6 +25,7 @@ urlpatterns = [
     path('', views.main),
     path('newsfeed/', views.newsfeed), # 127.0.0.1:8000/newsfeed
     path('post/', include("post.urls")),
+    path('test/',views.test),
 
 
 ]

@@ -22,7 +22,7 @@
     <title>FLORAL</title>
 
 </head>
-
+{% load static%}
 <style>
     .main_body {
         display: flex;
@@ -33,7 +33,7 @@
     }
 
     .left_body {
-        background-color: black;
+        background-color: none;
         margin-right: 100px;
         width: 600px;
         height: 3000px;
@@ -51,11 +51,12 @@
     }
 
     .feed_box {
-        background-color: #ff80ab;
+        background-color: #fbc4ff;
         width: 580px;
         margin: 10px;
         min-height: auto;
         padding-bottom: 10px;
+        border-radius: 15px;
     }
 
     .feed_img {
@@ -80,6 +81,9 @@
 
     .feed_txt {
         font-size: 14px;
+        display: flex;
+        background-color: none;
+        padding: 2px;
     }
 
 
@@ -267,9 +271,10 @@
 
     .feed_reply_write{
         margin-top: 10px;
-        border-top: 1px solid silver;
+        border-top: 5px solid pink;
         display: flex;
         align-items: center;
+        border-radius: 15px;
     }
 
     .icons {
@@ -280,6 +285,53 @@
         outline: none;
         box-shadow: none;
     }
+    
+    {% comment %} .btn-like{
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        background:url( {% static 'img/heart.png' %}) ;
+        background-position: -100px -400px;
+        text-indent: -9999px;
+        overflow:hidden;
+        border:none;
+    }
+ 
+    .btn-like.active{
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        background:url( {% static 'img/heart_full.png' %}) ;
+        background-position: -50px -400px;
+        text-indent: -9999px;
+        overflow:hidden;
+        border:none;
+    }
+
+    .btn-favorite{
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        background:url( {% static 'img/bookmark.png' %}) ;
+        background-position: -515px -150px;
+        text-indent: -9999px;
+        overflow:hidden;
+        border:none;
+    }
+ 
+    .btn-favorite.active{
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        background:url( {% static 'img/bookmark.png' %}) ;
+        background-position: -515px -100px;
+        text-indent: -9999px;
+        overflow:hidden;
+        border:none;
+    } 
+    
+    {% endcomment %}
+
 </style>
 
 <body>
@@ -290,7 +342,7 @@
          style="width: 100%;height: 50px;position: fixed;z-index: 9999">
         <div class="container" style="min-width: 800px">
             <img class="go_home" style="height: 30px; object-fit: contain;cursor: pointer"
-                 src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png">
+                 src="/media/FLORAL_logo1.png">
             <input class="form-control" style="width: 200px" type="search" placeholder="Search" aria-label="Search">
             <div style="display: flex; flex-direction: row; align-items: center; ">
                 <span class="material-icons navi_icons go_home">home</span>
@@ -303,7 +355,7 @@
                     <div class="navi_profile_box" id="dropdownMenuButton1"
                          data-bs-toggle="dropdown" aria-expanded="false">
 
-                        <img class="profile_img"src="/media/profile.jpg"> 
+                        <img class="profile_img"src="{% get_media_prefix %}{{ user.image }}"> 
                     </div>
 
                     <ul class="dropdown-menu" style="left: -130px" aria-labelledby="dropdownMenuButton1">
@@ -326,26 +378,35 @@
             <div class="border feed_box">
                 <div class="feed_name">
                     <div class="profile_box">
-                        <img class="profile_img" src="#">
+                        <a href="/user/profile/{{ newsfeed.new_user.id }}"><img class="profile_img" src="{% get_media_prefix %}{{ newsfeed.new_user.image }}" style="text-decoration:none"></a>
                     </div>
-                    <span class="feed_name_txt">{{newsfeed.user.username}}</span>
+
+                    <span class="feed_name_txt" ><a href="/user/profile/{{ newsfeed.new_user.id }}" style="text-decoration:none; color: black;">{{newsfeed.new_user.username}}</a></span>
+                    {%if newsfeed.new_user.username == user.username%}
                     <div style="text-align: right">
-                        <a href="/post/delete/{{ newsfeed.id }}">
-                            <span class="badge rounded-pill bg-danger">삭제</span>
+                        <a href="/post/delete/{{ newsfeed.new_id }}">
+                            <span class="badge rounded-pill bg-danger" onclick="test()">삭제</span>
                         </a>
                     </div>
+                    {%endif%}
                 </div>
-                <img class="feed_img" src="{% get_media_prefix %}{{ newsfeed.image }}">
+                <img class="feed_img" src="{% get_media_prefix %}{{ newsfeed.new_image }}">
                 <div class="feed_icon">
                     <div>
-                        <span class="favorite_icon material-icons-outlined icons" feed_id="newsfeed.id" style="color:red">
-                        <a href="/post/like/{{ newsfeed.id }}" class="card-link">favorite</a>
-
-                        </span>
-
-                        <span class="material-icons-outlined">
-                            mode_comment
-                        </span>
+                        {%if user in newsfeed.new_likes.all %}
+                        <a href="/post/like/{{ newsfeed.new_id }}" class="btn btn-link text-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-suit-heart-fill" viewBox="0 0 16 16">
+                              <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
+                            </svg>
+                        </a>
+                        {% else %}
+                        <a href="/post/like/{{ newsfeed.new_id }}" class="btn btn-link text-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-suit-heart-fill" viewBox="0 0 16 16">
+                              <path d="m8 6.236-.894-1.789c-.222-.443-.607-1.08-1.152-1.595C5.418 2.345 4.776 2 4 2 2.324 2 1 3.326 1 4.92c0 1.211.554 2.066 1.868 3.37.337.334.721.695 1.146 1.093C5.122 10.423 6.5 11.717 8 13.447c1.5-1.73 2.878-3.024 3.986-4.064.425-.398.81-.76 1.146-1.093C14.446 6.986 15 6.131 15 4.92 15 3.326 13.676 2 12 2c-.777 0-1.418.345-1.954.852-.545.515-.93 1.152-1.152 1.595L8 6.236zm.392 8.292a.513.513 0 0 1-.784 0c-1.601-1.902-3.05-3.262-4.243-4.381C1.3 8.208 0 6.989 0 4.92 0 2.755 1.79 1 4 1c1.6 0 2.719 1.05 3.404 2.008.26.365.458.716.596.992a7.55 7.55 0 0 1 .596-.992C9.281 2.049 10.4 1 12 1c2.21 0 4 1.755 4 3.92 0 2.069-1.3 3.288-3.365 5.227-1.193 1.12-2.642 2.48-4.243 4.38z"/>
+                            </svg>
+                        </a>
+                        {%endif%}
+  
                     </div>
                     <div>
                         <span class="bookmark_icon material-icons-outlined" feed_id="wefew">
@@ -353,21 +414,27 @@
                         </span>
                     </div>
                 </div>
-                <div class="feed_like">
-                    <p class="feed_txt"><b>좋아요 <span>{{post.like.like_count}}</span>개</b></p>
+                <div class="feed_txt">
+                    <p class="feed_txt" style="margin-left : 10px" ><b>좋아요 <span>{{newsfeed.new_likes.count}}</span>개</b></p>
                 </div>
                 <div class="feed_content">
-                    <p class="feed_txt"><b>{{newsfeed.user.username}}</b>&nbsp {{newsfeed.content}}</p>
+                    <p class="feed_txt"><b>{{newsfeed.new_user.username}}</b>&nbsp {{newsfeed.new_content}}</p>
                 </div>
-                {% for reply in feed.reply_list %}
+                
+                
+                {% for reply in newsfeed.new_reply %}
                 <div class="feed_reply">
-                        <span class="feed_txt"> <b> 댓글작성자 </b> 여기는 댓글입니다 </span>
+                    <span class="feed_txt"> <b> {{reply.comment_user.username}} </b> {{reply.text}} </span>
                 </div>
                 {% endfor %}
-                <div class="feed_reply_write">
-                    <input type="text" class="write_reply_input floating_input form-control" style="border: none;" id="floatingName" placeholder="댓글 달기...">
-                    <span class="write_reply" feed_id="{{ feed.id }}" style="width: 60px; font-size: 16px; color: deepskyblue;font-weight: bold"> 게시 </span>
-                </div>
+                <form method = "post" action = "/post/comment/" >
+                    {% csrf_token %}
+                    <div class="feed_reply_write">
+                        <input type = "hidden" value = "{{newsfeed.new_id}}" name = "newsfeed_new_id"></input>
+                        <input type="text" class="write_reply_input floating_input form-control" style="border: none; border-radius: 15px; width: 80%; margin-top : 7px; margin-left : 10px" id="floatingName" name = 'my-comment' placeholder="댓글 달기..." required>
+                        <button class="write_reply" type = 'submit' feed_id="{{ feed.id }}" style="width: 60px; font-size: 16px; color: deepskyblue;font-weight: bold; margin-left : 20px" "white-space: pre-wrap "> 게시 </span>
+                    </div>
+                </form>
             </div>
         {% endfor %} 
         </div>
@@ -378,15 +445,16 @@
                 <div style="display: flex; align-items: center; ">
                     <div class="big_profile_box">
                         <img class="profile_img"
-                             src="/media/profile.jpg">
+                             src="{% get_media_prefix %}{{ user.image }}">
+                             
+
                     </div>
                     <div class="name_content">
-                        <span class="feed_name_txt"> {{ user.user_id }} </span>
+                        <span class="feed_name_txt"> {{ user.name }} </span>
                         <span class="name_content_txt"> {{ user.name }}</span>
                     </div>
                 </div>
-
-                <a class="link_txt">
+                <a href="/user/signin/" class="link_txt">
                     전환
                 </a>
             </div>
@@ -396,14 +464,32 @@
                 <span style="font-size: 12px"> 모두 보기 </span>
             </div>
             <div>
+            {% for a in all_users %}
+            {% if user not in a.follow.all %}
                 <div class="feed_name" style="justify-content: space-between">
+                    <div class="profile_box">
+                        <img class="profile_img"
+                                src="{% get_media_prefix %}{{ a.image }}">
+                    </div>
+                    <div class="name_content">
+                        <span class="feed_name_txt"> {{a.username}} </span>
+                        <span class="name_content_txt"> {{a.email}}</span>
+                    </div>
+                    <a class="link_txt" href="/user/follow/{{a.id}}">
+                        팔로우
+                    </a>
+                </div>
+            {% endif %}
+            {% endfor %}
+            </div>
+                <!-- <div class="feed_name" style="justify-content: space-between">
                     <div class="profile_box">
                         <img class="profile_img"
                              src="https://i.pinimg.com/736x/93/a6/8b/93a68b57a54e4bdc73d43d1d049b94b3.jpg">
                     </div>
                     <div class="name_content">
                         <span class="feed_name_txt"> dation3388 </span>
-                        <span class="name_content_txt"> Jinstargram 신규가입</span>
+                        <span class="name_content_txt"> FLORAL 신규가입</span>
                     </div>
                     <a class="link_txt">
                         팔로우
@@ -461,12 +547,12 @@
                         팔로우
                     </a>
                 </div>
-            </div>
+            </div> -->
             <div class="comment_box">
-                <span> 인스타그램 클론 코딩 </span>
-                <span> https://cholol.tistory.com </span>
+                <span> FLORAL_CloneCording </span>
+                <span> https://github.com/WR-10/team-Fl_O-repo.git </span>
                 <br>
-                <span> @2021 Jin.99 </span>
+                <span> @2022 Team_Fl_O </span>
             </div>
         </div>
     </div>
@@ -495,7 +581,7 @@
     <div class="modal_window">
         <div class="modal_title">
             <div class="modal_title_side"></div>
-            <div style="margin: 5px"> 새 게시물</div>
+            <div style="margin: 5px"> 새 게시물 </div>
             <div class="modal_title_side">
                 <span id="close_modal" class="close_modal material-icons-outlined" style="font-size: 30px">
                     close
@@ -531,6 +617,15 @@
 
 <!-- Optional JavaScript; choose one of the two! -->
 <script>
+    function test() {
+        if (!confirm("진짜 삭제해?")) {
+            alert("취소됨");
+            
+        } else {
+            alert("삭제됨");
+        }
+    }
+
     // 모달 띄우기 코드
     $.ajaxSetup({
         headers: { "X-CSRFToken": '{{csrf_token}}' }
@@ -543,40 +638,40 @@
         document.body.style.overflowY = "hidden"; // 스크롤 없애기
     });
 
-    $('.write_reply').click(function () {
-        console.log($(this).prev().val());
-        console.log($(this).attr('feed_id'));
-        let success = false;
-        let content = $(this).prev().val();
-        let feed_id = Number($(this).attr('feed_id'));
+    // $('.write_reply').click(function () {
+    //     console.log($(this).prev().val());
+    //     console.log($(this).attr('feed_id'));
+    //     let success = false;
+    //     let content = $(this).prev().val();
+    //     let feed_id = Number($(this).attr('feed_id'));
 
-        $.ajax({
-            url: "/content/reply/create",
-            data: {
-                email: '{{ user.email }}',
-                user_id: '{{ user.user_id }}',
-                content: content,
-                feed_id: feed_id
-            },
-            method: "POST",
-            dataType: "json",
-            async: false,
-            success: function (data){
-                alert(data.message);
-                success=true
-            },
-            error:function (request, status, error){
-                let data = JSON.parse(request.responseText);
-                console.log(data.message);
-                alert(data.message);
-            }
-        });
-        console.log(success)
-        if(success == true){
-            $(this).parent().prev().append('<span class="feed_txt"><b> {{ user.user_id }} </b> '+ content +' </span>');
-            $('.write_reply_input').val('');
-        }
-    });
+    //     $.ajax({
+    //         url: "/content/reply/create",
+    //         data: {
+    //             email: '{{ user.email }}',
+    //             user_id: '{{ user.user_id }}',
+    //             content: content,
+    //             feed_id: feed_id
+    //         },
+    //         method: "POST",
+    //         dataType: "json",
+    //         async: false,
+    //         success: function (data){
+    //             alert(data.message);
+    //             success=true
+    //         },
+    //         error:function (request, status, error){
+    //             let data = JSON.parse(request.responseText);
+    //             console.log(data.message);
+    //             alert(data.message);
+    //         }
+    //     });
+    //     console.log(success)
+    //     if(success == true){
+    //         $(this).parent().prev().append('<span class="feed_txt"><b> {{ user.user_id }} </b> '+ content +' </span>');
+    //         $('.write_reply_input').val('');
+    //     }
+    // });
 
     $('.favorite_icon').click(function () {
         console.log($(this).prev().val());
@@ -591,9 +686,9 @@
         let feed_id = Number($(this).attr('feed_id'));
 
         $.ajax({
-            url: "/content/like",
+            url: "/post/like",
             data: {
-                email: '{{ user.email }}',
+                //email: '{{ user.email }}',//
                 is_like: is_like,
                 feed_id: feed_id
             },
@@ -608,16 +703,18 @@
                 console.log(data.message);
             }
         });
+   
         console.log(success)
         if(success == true){
             console.log(is_like)
+            $(this).html('favorite');
             if(is_like){
-                $(this).html('favorite');
                 let like_count_object = $(this).parent().parent().next().find('p').find('span');
                 let like_count = Number(like_count_object.html());
                 like_count_object.html(like_count + 1);
                 console.log(like_count);
-            }else{
+            }
+            else{
                 $(this).html('favorite_border');
                 let like_count_object = $(this).parent().parent().next().find('p').find('span');
                 let like_count = Number(like_count_object.html());

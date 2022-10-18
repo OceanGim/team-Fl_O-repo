@@ -1,12 +1,17 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.contrib import messages
 from .models import UserModel
 from post.models import PostModel
 from django.contrib import auth
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from FLO_pro.settings import MEDIA_ROOT
-from django.conf import settings
+from uuid import uuid4 
+import os
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from rest_framework.response import Response
+
+import pprint
 
 
 def main(request):
@@ -64,6 +69,7 @@ def signin(request):
             return redirect('/user/signin')
     elif request.method == 'GET':
         return render(request, 'user/signin.html')
+        
 @login_required
 def signout(request):
     auth.logout(request) # 로그아웃 session 종료
@@ -73,19 +79,71 @@ def signout(request):
 def index(request):
     return render(request, 'index.html/') # 메인페이지
 
-# def profile(request):
-#     print("함수열려라 참꺠!")   
-#     return render(request, 'user/profile.html')
-
+@csrf_exempt
 def profile(request):
+    print("views.profile 들어옴")
 
+    # GET 장고에서 웹으로 정보를 보낸다
     if request.method == 'GET': # GET 메서드로 요청이 들어올 경우        
         print("profile get mehtod")
         user = request.user.is_authenticated
         my_user = request.user
         if user:  # 로그인 한 사용자라면
             user_profile = UserModel.objects.get(username=my_user.username)
+            print(f"{user_profile.id}, {user_profile.username}, {user_profile.image}")
             post_profile = PostModel.objects.filter(user_id=user_profile).order_by('-create_at')
             return render(request, 'user/profile.html/', {'profiles': user_profile, 'postprofiles':post_profile}) # list
         else:  # 로그인이 되어 있지 않다면
             return redirect('/user/profile/')
+    
+    # POST 웹에서 정보를 받는다
+    elif request.method == 'POST':
+        print("profile_register")
+        file = request.FILES['file']
+        uuid_name = uuid4().hex # 자동생성
+        save_path = os.path.join(MEDIA_ROOT, uuid_name) # 저장 경로
+        with open(save_path, 'wb+') as destination: # 저장과정 ?
+            for chunk in file.chunks():
+                destination.write(chunk)
+        update_image = uuid_name # 사진 이름 (28918374919.jpg)
+        print(update_image)
+        # 이미 있는 유저에다가 image 만 교체  :  나(본인)  세션
+        my_user = request.user
+        my_profileimg = UserModel.objects.get(username=my_user.username) 
+        print('photo print')
+        print(f"{my_profileimg.id}, {my_profileimg.username}, {my_profileimg.image}")
+        my_profileimg.image = update_image
+        my_profileimg.save()
+        # save()
+        print(f"{my_profileimg.id}, {my_profileimg.username}, {my_profileimg.image}")
+        # my_profileimg = id = aaa pw = 111 image = 28938490184 email = a@aa
+        # return HttpResponse("성공",status=200) # url 주소 127.0.0.1/8000'/user/profile/'
+        # return Response(status=200, data=dict(message="프로필사진 변경 성공!"))
+        return HttpResponse(200, "성공")
+
+# OOO = UserModel.objects.all() # 업데이트 할 데이터 가져오기
+# OOO.update(title='test title') 
+
+@login_required
+def user_view(request, id):
+    if request.method == 'GET':
+        get_user = UserModel.objects.get(id = id)
+        post_profile = PostModel.objects.filter(user_id=id).order_by('-create_at')
+        return render(request,'user/user_profile.html' , {'get_user' : get_user, 'postprofiles':post_profile})
+    else:
+        pass
+        
+        
+       # 1. 클릭한 유저 찾기 
+       # 2. 그 정보 html에 넣기
+
+def follow(request,id):
+    print("follow 들어옴")
+    me = request.user
+    target_user = UserModel.objects.get(id=id) #클릭된 유저
+    if me in target_user.follow.all(): #라이크 한 사람들 모두 가져옴
+        target_user.follow.remove(request.user) # 그 사람중에 나를 뺌
+    else:
+        target_user.follow.add(request.user)
+    return redirect('/user/profile/'+str(id))
+       

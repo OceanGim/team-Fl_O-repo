@@ -1,18 +1,18 @@
+from unittest.mock import patch
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from .models import PostModel, UserModel
 from rest_framework.views import APIView
-from post.models import PostModel
+from post.models import PostModel, Comment
 from rest_framework.response import Response
 import os
 from FLO_pro.settings import MEDIA_ROOT
-from uuid import uuid4
+from uuid import uuid4 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .import models
-
-
-
+from django.views.generic.base import View
+from urllib.parse import urlparse
 
 
 class Main(APIView):
@@ -61,6 +61,20 @@ def posting(request):
 
 
 
+def comment(request):
+
+    if request.method == 'POST':
+        username = request.user.username
+        my_comment = Comment()
+        a = request.POST.get('newsfeed_new_id','')
+        my_comment.post = PostModel.objects.get(id = a)
+        my_comment.comment_user = UserModel.objects.get(username = username)
+        print("Comment regeister")
+        my_comment.text = request.POST.get('my-comment','')
+        my_comment.save()
+        return redirect('/')
+        
+#글 삭제하기
 @login_required
 def delete_post(request, id):
     print("글 삭제 들어옴")
@@ -68,47 +82,49 @@ def delete_post(request, id):
     my_tweet.delete()
     return redirect('/')
 
+
+#좋아요
 @login_required
 def post_like(request, id):
     print("post like들어옴")
     me = request.user
     click_post = PostModel.objects.get(id=id) #클릭된 유저
-    if me in click_post.like.all(): #라이크 한 사람들 모두 가져옴
-        click_post.like.remove(request.user) # 그 사람중에 나를 뺌
+    if me in click_post.likes.all(): #라이크 한 사람들 모두 가져옴
+        click_post.likes.remove(request.user) # 그 사람중에 나를 뺌
     else:
-        click_post.like.add(request.user)
+        click_post.likes.add(request.user)
     return redirect('/')
 
+# class post_like(View):
+#     def get(self, request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return HttpResponseForbidden()
+#         else:
+#             if 'post_id' in kwargs:
+#                 post_id = kwargs['post_id']
+#                 post = PostModel.objects.get(pk=post_id)
+#                 user = request.user
+#                 if user in post.like.all():
+#                     post.like.remove(user)
+#                 else:
+#                     post.like.add(user)
+#             referer_url = request.META.get('HTTP_REFERER')
+#             path = urlparse(referer_url).path
+#             return HttpResponseRedirect(path)
 
+              
+# class post_favorite(View): 
+#   def get(self, request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return HttpResponseForbidden()
+#         if 'post_id' in kwargs:
+#                 post_id = kwargs['post_id']
+#                 post = PostModel.objects.get(pk=post_id)
+#                 user = request.user
+#                 if user in post.favorite.all():
+#                     post.favorite.remove(user)
+#                 else:
+#                     post.favorite.add(user)
+#                     return HttpResponseRedirect('/')
+                    
 
-
-
-
-
-
-        # # my_tweet = TweetModel.objects.get(id=id)
-
-        # ## user 정보 가져와야 함
-        # my_posting = PostModel()
-        # print("돌아가라 함수야~~~")
-        # # user = request.POST.get('username', None)
-        # user = my_user
-        # content = request.POST.get('content', None)
-        # like_count = request.POST.get('like_count', None)
-
-        # my_posting.user = my_user
-        # my_posting.content = content
-        
-        # my_posting.save()
-        # return HttpResponse(200,"성공") # 200 > 성공했다는 뜻!
-        
-        
-
-# class PostModel(models.Model):
-#     class Meta:
-#         db_table = "my_post"
-#     user = models.ForeignKey(UserModel, on_delete=models.CASCADE) # 작성자  
-#     updated_at = models.DateTimeField(auto_now=True) # 변경 시간
-#     content = models.TextField(max_length=500, blank=True) # * status message
-#     like_count = models.IntegerField(default=0)
-#     create_at = models.DateTimeField(auto_now_add=True)

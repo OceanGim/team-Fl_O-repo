@@ -9,7 +9,10 @@ urlpatterns =[
      path('profile/', views.profile),
      path('signin/', views.signin),
      path('signout/',views.signout),
-     
+     path('profile/<int:id>/', views.user_view),
+     path('follow/<int:id>/', views.follow),
+     # path('profile/follower/<int:id>', views.view_follow),
+          
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
